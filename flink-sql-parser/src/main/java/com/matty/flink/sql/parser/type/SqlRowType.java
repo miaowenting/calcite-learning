@@ -1,5 +1,6 @@
 package com.matty.flink.sql.parser.type;
 
+import lombok.Data;
 import org.apache.calcite.sql.SqlCharStringLiteral;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -17,6 +18,7 @@ import java.util.List;
  * @version 1.0
  * @date 2019-10-08
  */
+@Data
 public class SqlRowType extends SqlIdentifier implements ExtendedSqlType{
     private final List<SqlIdentifier> fieldNames;
     private final List<SqlDataTypeSpec> fieldTypes;
@@ -30,18 +32,6 @@ public class SqlRowType extends SqlIdentifier implements ExtendedSqlType{
         this.fieldNames = fieldNames;
         this.fieldTypes = fieldTypes;
         this.comments = comments;
-    }
-
-    public List<SqlIdentifier> getFieldNames() {
-        return fieldNames;
-    }
-
-    public List<SqlDataTypeSpec> getFieldTypes() {
-        return fieldTypes;
-    }
-
-    public List<SqlCharStringLiteral> getComments() {
-        return comments;
     }
 
     public int getArity() {

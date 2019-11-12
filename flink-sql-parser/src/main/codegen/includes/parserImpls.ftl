@@ -41,9 +41,9 @@ void TableColumn(TableCreationContext context) :
     |
         context.primaryKeyList = PrimaryKey()
     |
-        ComputedColumn(context)
-    |
         Watermark(context)
+    |
+        ComputedColumn(context)
     |
         context.sideFlag = SideFlag()
     )
@@ -52,18 +52,18 @@ void TableColumn(TableCreationContext context) :
 
 void ComputedColumn(TableCreationContext context) :
 {
-    SqlNode identifier;
+    SqlNode identifier = null;
     SqlNode expr;
     boolean hidden = false;
     SqlParserPos pos;
 }
 {
-    identifier = SimpleIdentifier() {pos = getPos();}
-    <AS>
-    expr = Expression(ExprContext.ACCEPT_SUB_QUERY) {
-        expr = SqlStdOperatorTable.AS.createCall(Span.of(identifier, expr).pos(), expr, identifier);
-        context.columnList.add(expr);
-    }
+            identifier = SimpleIdentifier() {pos = getPos();}
+            <AS>
+                expr = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+                expr = SqlStdOperatorTable.AS.createCall(Span.of(identifier, expr).pos(), expr, identifier);
+                context.columnList.add(expr);
+                }
 }
 
 void Watermark(TableCreationContext context) :
@@ -89,18 +89,21 @@ void TableColumn2(List<SqlNode> list) :
     SqlParserPos pos;
     SqlIdentifier name;
     SqlDataTypeSpec type;
+    SqlIdentifier alias = null;
     SqlCharStringLiteral comment = null;
 }
 {
     name = SimpleIdentifier()
     <#-- #FlinkDataType already takes care of the nullable attribute. -->
     type = FlinkDataType()
+    [ <AS> alias = SimpleIdentifier()
+    ]
     [ <COMMENT> <QUOTED_STRING> {
         String p = SqlParserUtil.parseString(token.image);
         comment = SqlLiteral.createCharString(p, getPos());
     }]
     {
-        SqlTableColumn tableColumn = new SqlTableColumn(name, type, comment, getPos());
+        SqlTableColumn tableColumn = new SqlTableColumn(name, type , alias ,comment , getPos());
         list.add(tableColumn);
     }
 }

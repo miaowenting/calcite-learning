@@ -60,7 +60,7 @@ public class CreateTableSqlConvertor extends BaseSqlConvertor implements SqlConv
                 .columns(columns)
                 .primaryKeys(primaryKeyList)
                 .propMap(propMap)
-                .sideFlag(sqlCreateTable.getSideFlag())
+                .sideFlag(sqlCreateTable.isSideFlag())
                 .eventTimeField(eventTimeField)
                 .maxOutOrderless(maxOutOrderless)
                 .containsComputedColumns(sqlCreateTable.containsComputedColumn());

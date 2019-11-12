@@ -2,6 +2,7 @@ package com.matty.flink.sql.parser.ddl;
 
 import com.matty.flink.sql.parser.ExtendedSqlNode;
 import com.matty.flink.sql.parser.exception.SqlParseException;
+import lombok.Data;
 import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.dialect.AnsiSqlDialect;
 import org.apache.calcite.sql.parser.SqlParserPos;
@@ -23,6 +24,7 @@ import static java.util.Objects.requireNonNull;
  * @version 1.0
  * @date 2019-10-08
  */
+@Data
 public class SqlCreateTable extends SqlCreate implements ExtendedSqlNode {
 
     public static final SqlSpecialOperator OPERATOR = new SqlSpecialOperator("CREATE TABLE", SqlKind.CREATE_TABLE);
@@ -75,41 +77,10 @@ public class SqlCreateTable extends SqlCreate implements ExtendedSqlNode {
                 propertyList, comment);
     }
 
-    public SqlIdentifier getTableName() {
-        return tableName;
-    }
-
-    public SqlNodeList getColumnList() {
-        return columnList;
-    }
-
-    public SqlNodeList getPropertyList() {
-        return propertyList;
-    }
-
-    public SqlNodeList getPrimaryKeyList() {
-        return primaryKeyList;
-    }
-
-    public SqlCharStringLiteral getComment() {
-        return comment;
-    }
-
-    public boolean getSideFlag() {
-        return sideFlag;
-    }
-
-    public SqlIdentifier getEventTimeField() {
-        return eventTimeField;
-    }
-
     public Long getMaxOutOrderless() {
         return Long.parseLong(((NlsString) SqlLiteral.value(maxOutOrderless)).getValue());
     }
 
-    public boolean isIfNotExists() {
-        return ifNotExists;
-    }
 
     @Override
     public void validate() throws SqlParseException {
@@ -120,6 +91,9 @@ public class SqlCreateTable extends SqlCreate implements ExtendedSqlNode {
                 if (column instanceof SqlTableColumn) {
                     SqlTableColumn tableColumn = (SqlTableColumn) column;
                     columnName = tableColumn.getName().getSimple();
+                    if (tableColumn.getAlias() != null) {
+                        columnName = tableColumn.getAlias().getSimple();
+                    }
                     String typeName = tableColumn.getType().getTypeName().getSimple();
                     if (SqlColumnType.getType(typeName).isUnsupported()) {
                         throw new SqlParseException(
@@ -220,12 +194,30 @@ public class SqlCreateTable extends SqlCreate implements ExtendedSqlNode {
                 column.unparse(writer, leftPrec, rightPrec);
             }
         }
+
         if (primaryKeyList != null && primaryKeyList.size() > 0) {
             printIndent(writer);
             writer.keyword("PRIMARY KEY");
             SqlWriter.Frame keyFrame = writer.startList("(", ")");
             primaryKeyList.unparse(writer, leftPrec, rightPrec);
             writer.endList(keyFrame);
+        }
+
+        if (sideFlag) {
+            printIndent(writer);
+            writer.keyword("PERIOD FOR SYSTEM_TIME");
+        }
+
+        if (eventTimeField != null) {
+            printIndent(writer);
+            writer.keyword("WATERMARK FOR ");
+            eventTimeField.unparse(writer, leftPrec, rightPrec);
+            writer.keyword("AS withOffset");
+            SqlWriter.Frame offsetFrame = writer.startList("(", ")");
+            eventTimeField.unparse(writer, leftPrec, rightPrec);
+            writer.keyword(",");
+            maxOutOrderless.unparse(writer, leftPrec, rightPrec);
+            writer.endList(offsetFrame);
         }
 
         writer.newlineAndIndent();
