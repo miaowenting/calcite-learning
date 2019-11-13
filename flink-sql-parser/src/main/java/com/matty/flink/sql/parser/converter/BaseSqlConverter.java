@@ -1,4 +1,4 @@
-package com.matty.flink.sql.parser.convertor;
+package com.matty.flink.sql.parser.converter;
 
 import com.matty.flink.sql.parser.impl.SqlParserImpl;
 import com.matty.flink.sql.parser.validate.FlinkSqlConformance;
@@ -15,7 +15,7 @@ import org.apache.calcite.sql.parser.SqlParser;
  * @version 1.0
  * @date 2019-10-14
  */
-public abstract class BaseSqlConvertor {
+public abstract class BaseSqlConverter {
     private FlinkSqlConformance conformance = FlinkSqlConformance.DEFAULT;
 
     protected SqlNode parseStmtAndHandleEx(String sql) {

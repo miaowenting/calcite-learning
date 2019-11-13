@@ -4,18 +4,23 @@ import org.apache.calcite.sql.validate.SqlConformance;
 
 /**
  * Description:
+ * Flink sql适应类
  *
  * @author mwt
  * @version 1.0
  * @date 2019-10-08
  */
 public enum FlinkSqlConformance implements SqlConformance {
-    /** Calcite's default SQL behavior. */
+    /**
+     * Calcite's default SQL behavior.
+     */
     DEFAULT,
 
-    /** Conformance value that instructs Calcite to use SQL semantics
+    /**
+     * Conformance value that instructs Calcite to use SQL semantics
      * consistent with the Apache HIVE, but ignoring its more
-     * inconvenient or controversial dicta. */
+     * inconvenient or controversial dicta.
+     */
     HIVE;
 
     @Override

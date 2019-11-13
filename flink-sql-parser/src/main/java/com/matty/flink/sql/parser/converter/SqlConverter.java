@@ -1,4 +1,4 @@
-package com.matty.flink.sql.parser.convertor;
+package com.matty.flink.sql.parser.converter;
 
 /**
  * Description:
@@ -7,7 +7,7 @@ package com.matty.flink.sql.parser.convertor;
  * @version 1.0
  * @date 2019-10-10
  */
-public interface SqlConvertor<T> {
+public interface SqlConverter<T> {
 
     T convert(String sql);
 

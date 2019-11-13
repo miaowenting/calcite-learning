@@ -1,4 +1,4 @@
-package com.matty.flink.sql.parser.convertor;
+package com.matty.flink.sql.parser.converter;
 
 import com.matty.flink.sql.parser.ddl.FunctionType;
 import com.matty.flink.sql.parser.ddl.SqlCreateFunction;
@@ -12,7 +12,7 @@ import org.apache.calcite.sql.SqlNode;
  * @version 1.0
  * @date 2019-10-15
  */
-public class CreateFunctionSqlConvertor extends BaseSqlConvertor implements SqlConvertor<CreateFunctionSqlConvertor.CreateFunctionSqlConvertResult> {
+public class CreateFunctionSqlConverter extends BaseSqlConverter implements SqlConverter<CreateFunctionSqlConverter.CreateFunctionSqlConvertResult> {
 
     @Override
     public CreateFunctionSqlConvertResult convert(String sql) {

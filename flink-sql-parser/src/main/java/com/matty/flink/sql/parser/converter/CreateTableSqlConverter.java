@@ -1,4 +1,4 @@
-package com.matty.flink.sql.parser.convertor;
+package com.matty.flink.sql.parser.converter;
 
 import com.matty.flink.sql.parser.ddl.SqlCreateTable;
 import com.matty.flink.sql.parser.ddl.SqlTableOption;
@@ -19,7 +19,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019-10-10
  */
-public class CreateTableSqlConvertor extends BaseSqlConvertor implements SqlConvertor<CreateTableSqlConvertor.CreateTableSqlConvertResult> {
+public class CreateTableSqlConverter extends BaseSqlConverter implements SqlConverter<CreateTableSqlConverter.CreateTableSqlConvertResult> {
 
     @Override
     public CreateTableSqlConvertResult convert(String sql) {

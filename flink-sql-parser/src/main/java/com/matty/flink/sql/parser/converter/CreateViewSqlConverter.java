@@ -1,4 +1,4 @@
-package com.matty.flink.sql.parser.convertor;
+package com.matty.flink.sql.parser.converter;
 
 import com.matty.flink.sql.parser.ddl.SqlCreateView;
 import lombok.Data;
@@ -11,7 +11,7 @@ import org.apache.calcite.sql.SqlNode;
  * @version 1.0
  * @date 2019-10-14
  */
-public class CreateViewSqlConvertor extends BaseSqlConvertor implements SqlConvertor<CreateViewSqlConvertor.CreateViewSqlConvertResult> {
+public class CreateViewSqlConverter extends BaseSqlConverter implements SqlConverter<CreateViewSqlConverter.CreateViewSqlConvertResult> {
 
     @Override
     public CreateViewSqlConvertResult convert(String sql) {

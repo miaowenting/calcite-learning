@@ -1,10 +1,13 @@
 package com.matty.flink.sql.parser.dml;
 
 import com.matty.flink.sql.parser.BaseParser;
+import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlNode;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Description:
@@ -39,7 +42,11 @@ public class RichSqlInsertTest extends BaseParser {
             final SqlNode sqlNode = parseStmtAndHandleEx(sql);
             assert sqlNode instanceof RichSqlInsert;
             final RichSqlInsert richSqlInsert = (RichSqlInsert) sqlNode;
+            List<String> targetTablePath = ((SqlIdentifier) richSqlInsert.getTargetTable()).names;
+            String source = richSqlInsert.getSource().toString();
 
+            LOG.info("targetTablePath: {}", targetTablePath);
+            LOG.info("source: {}",source);
         } catch (Throwable t) {
             LOG.error("The rich insert sql is invalid.");
         }

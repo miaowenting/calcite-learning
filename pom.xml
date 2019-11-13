@@ -11,6 +11,7 @@
     <modules>
         <module>flink-sql-parser</module>
         <module>calcite-parser-quickstart</module>
+        <module>flink-sql-converter</module>
     </modules>
 
     <properties>
