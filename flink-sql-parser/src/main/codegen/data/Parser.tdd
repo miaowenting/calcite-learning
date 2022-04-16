@@ -33,6 +33,7 @@
     "com.matty.flink.sql.parser.ddl.SqlCreateView",
     "com.matty.flink.sql.parser.ddl.SqlCreateFunction",
     "com.matty.flink.sql.parser.ddl.FunctionType",
+    "com.matty.flink.sql.parser.ddl.SqlCreateCepRule",
     "com.matty.flink.sql.parser.dml.RichSqlInsert",
     "com.matty.flink.sql.parser.dml.RichSqlInsertKeyword",
     "com.matty.flink.sql.parser.type.SqlArrayType",
@@ -69,7 +70,11 @@
     "BYTES",
     "offset",
     "reset",
-    "SCALA"
+    "SCALA",
+    "CEPRULE",
+    "EVENT",
+    "REPEAT",
+    "SAME"
   ]
 
   # List of keywords from "keywords" section that are not reserved.
@@ -447,7 +452,8 @@
   createStatementParserMethods: [
     "SqlCreateTable",
     "SqlCreateView",
-    "SqlCreateFunction"
+    "SqlCreateFunction",
+    "SqlCreateCepRule"
   ]
 
   # List of methods for parsing extensions to "DROP" calls.

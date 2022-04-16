@@ -206,6 +206,54 @@ SqlNodeList TableProperties():
 }
 
 /**
+ * 创建 cep 规则
+ */
+SqlCreate SqlCreateCepRule(Span s,boolean replace) :
+{
+        final SqlParserPos startPos = s.pos();
+        SqlIdentifier cepRuleName;
+        SqlIdentifier event = null;
+        SqlCharStringLiteral where = null;
+        SqlIdentifier repeat = null;
+        SqlIdentifier same = null;
+        SqlIdentifier windowSize = null;
+        SqlIdentifier windowUnit = null;
+        SqlCharStringLiteral returnContent = null;
+}
+{
+        <CEPRULE> cepRuleName = CompoundIdentifier()
+        [
+            <LPAREN>
+                <EVENT> event = CompoundIdentifier() <COMMA>
+                <WHERE> <QUOTED_STRING>{
+                            String p = SqlParserUtil.parseString(token.image);
+                            where = SqlLiteral.createCharString(p, getPos());
+                        } <COMMA>
+                <REPEAT> repeat = CompoundIdentifier() <SAME> same = CompoundIdentifier() <COMMA>
+                <WITHIN> {
+                            windowSize = CompoundIdentifier();
+                            windowUnit = CompoundIdentifier();
+                         } <COMMA>
+                <RETURN>  <QUOTED_STRING>{
+                            String p1 = SqlParserUtil.parseString(token.image);
+                            returnContent = SqlLiteral.createCharString(p1, getPos());
+                    }
+             <RPAREN>
+        ]
+        {
+                    return new SqlCreateCepRule(startPos.plus(getPos()),
+                     cepRuleName,
+                     event,
+                     where,
+                     repeat,
+                     same,
+                     windowSize,
+                     windowUnit,
+                     returnContent);
+        }
+}
+
+/**
  * Parse a table creation.
  */
 SqlCreate SqlCreateTable(Span s, boolean replace) :

@@ -3,13 +3,9 @@ package com.matty.flink.sql.parser.ddl;
 import com.matty.flink.sql.parser.BaseParser;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Description:
@@ -22,130 +18,48 @@ public class SqlCreateCepRuleTest extends BaseParser {
     private final static Logger LOG = LoggerFactory.getLogger(SqlCreateCepRuleTest.class);
 
     @Test
-    public void createKafkaSource() {
-        String sql =
-                " CREATE TABLE table_source(\n" +
-                "    name varchar,\n" +
-                "    channel varchar,\n" +
-                "    pv int,\n" +
-                "    xctime bigint\n" +
-                " )WITH(\n" +
-                "    type='kafka11',\n" +
-                "    kafka.bootstrap.servers='mwt:9092',\n" +
-                "    kafka.zookeeper.quorum='localhost:2181',\n" +
-                "    kafka.auto.offset.reset='latest',\n" +
-                "    kafka.kerberos.enabled='false',\n" +
-                "    kafka.data.type='json',\n" +
-                "    kafka.topic='table_source',\n" +
-                "    parallelism='1'\n" +
-                " )\n";
+    public void createCepRule() {
+        String sql = "-- 这是行注释信息\n" +
+                "/** 这是段注释信息 */" +
+                "CREATE CEPRULE cep_rule(\n" +
+                "  EVENT `e1->e2`,\n" +
+                "  WHERE 'e1.event_code = S_PUBLISH_ITEM,e2.event_code = S_CREATE_ORDER AND e1.extra_info" +
+                ".item_id = e2.extra_info.item_id AND e2.event_time - e1.event_time < 5',\n" +
+                "  REPEAT `3` SAME `e2.user_id`,-- 行尾注释信息 \n" +
+                "  WITHIN `1` `HOUR`,\n" +
+                "  RETURN 'user_id=e2.user_id,item_id=e2.extra_info.item_id'\n" +
+                ")\n";
+
         final SqlNode sqlNode = parseStmtAndHandleEx(sql);
-        assert sqlNode instanceof SqlCreateTable;
-        final SqlCreateTable sqlCreateTable = (SqlCreateTable) sqlNode;
+        assert sqlNode instanceof SqlCreateCepRule;
+        final SqlCreateCepRule sqlCreateCepRule = (SqlCreateCepRule) sqlNode;
 
-        SqlIdentifier tableName = sqlCreateTable.getTableName();
-        LOG.debug("tableName: {}", tableName);
+        SqlIdentifier cepRuleName = sqlCreateCepRule.getCepRuleName();
+        LOG.debug("cepRuleName: {}", cepRuleName);
 
-        SqlNodeList columns = sqlCreateTable.getColumnList();
-        LOG.debug("columns: {}", columns);
+        String event = sqlCreateCepRule.getEvent().getSimple();
+        LOG.debug("event: {}", event);
 
-        // set with properties
-        SqlNodeList propertyList = sqlCreateTable.getPropertyList();
-        Map<String, String> properties = new HashMap<>();
-        if (propertyList != null) {
-            propertyList.getList().forEach(p ->
-                    properties.put(((SqlTableOption) p).getKeyString().toLowerCase(),
-                            ((SqlTableOption) p).getValueString()));
-        }
-        LOG.debug("properties: {}", properties);
+        String where = sqlCreateCepRule.getWhere().toString();
+        LOG.debug("where: {}", where);
+
+        String repeat = sqlCreateCepRule.getRepeat().getSimple();
+        LOG.debug("repeat: {}", repeat);
+
+        String same = sqlCreateCepRule.getSame().getSimple();
+        LOG.debug("same: {}", same);
+
+        String windowSize = sqlCreateCepRule.getWindowSize().getSimple();
+        LOG.debug("windowSize: {}", windowSize);
+
+        String windowCount = sqlCreateCepRule.getWindowUnit().getSimple();
+        LOG.debug("windowCount: {}", windowCount);
+
+        String returnContent = sqlCreateCepRule.getReturnContent().toString();
+        LOG.debug("returnContent: {}", returnContent);
 
     }
 
-    @Test
-    public void createKafkaSourceWithComputedColumn() {
-        String sql =
-                " CREATE TABLE table_source(\n" +
-                "    name varchar,\n" +
-                "    channel varchar,\n" +
-                "    pv int,\n" +
-                "    xctime bigint,\n" +
-                "    timeLeng AS CHARACTER_LENGTH(channel) " +
-                " )WITH(\n" +
-                "    type='kafka11',\n" +
-                "    kafka.bootstrap.servers='mwt:9092',\n" +
-                "    kafka.zookeeper.quorum='localhost:2181',\n" +
-                "    kafka.auto.offset.reset='latest',\n" +
-                "    kafka.kerberos.enabled='false',\n" +
-                "    kafka.data.type='json',\n" +
-                "    kafka.topic='table_source',\n" +
-                "    parallelism='1'\n" +
-                " )\n";
-        final SqlNode sqlNode = parseStmtAndHandleEx(sql);
-        assert sqlNode instanceof SqlCreateTable;
-        final SqlCreateTable sqlCreateTable = (SqlCreateTable) sqlNode;
-
-        SqlIdentifier tableName = sqlCreateTable.getTableName();
-        LOG.debug("tableName: {}", tableName);
-
-        SqlNodeList columns = sqlCreateTable.getColumnList();
-        LOG.debug("columns: {}", columns);
-
-        // set with properties
-        SqlNodeList propertyList = sqlCreateTable.getPropertyList();
-        Map<String, String> properties = new HashMap<>();
-        if (propertyList != null) {
-            propertyList.getList().forEach(p ->
-                    properties.put(((SqlTableOption) p).getKeyString().toLowerCase(),
-                            ((SqlTableOption) p).getValueString()));
-        }
-        LOG.debug("properties: {}", properties);
-
-    }
-
-    @Test
-    public void createKafkaSourceWithComputedColumnForWatermark() {
-        String sql = "CREATE TABLE table_source(\n" +
-                "    channel varchar, -- 频道\n" +
-                "    pv int,          -- 点击次数\n" +
-                "    xctime varchar,  -- yyyyMMddHHmmss格式时间戳，字符串类型\n" +
-                "    ts AS TO_TIMESTAMP(xctime,'yyyyMMddHHmmss'), -- rowtime,必须为TIMESTAMP类型\n" +
-                "    WATERMARK FOR ts AS withOffset( ts , '120000' ) --watermark计算方法,允许2分钟的乱序时间,即允许数据迟到2分钟\n" +
-                " )WITH(\n" +
-                "    type='kafka11',\n" +
-                "    kafka.bootstrap.servers='mwt:9092',\n" +
-                "    kafka.auto.offset.reset='latest',\n" +
-                "    kafka.kerberos.enabled='false',\n" +
-                "    kafka.data.type='json',\n" +
-                "    kafka.topic='table_source',\n" +
-                "    parallelism='1'\n" +
-                " )\n";
-        final SqlNode sqlNode = parseStmtAndHandleEx(sql);
-        assert sqlNode instanceof SqlCreateTable;
-        final SqlCreateTable sqlCreateTable = (SqlCreateTable) sqlNode;
-
-        SqlIdentifier tableName = sqlCreateTable.getTableName();
-        LOG.debug("tableName: {}", tableName);
-
-        SqlNodeList columns = sqlCreateTable.getColumnList();
-        LOG.debug("columns: {}", columns);
-
-        // set with properties
-        SqlNodeList propertyList = sqlCreateTable.getPropertyList();
-        Map<String, String> properties = new HashMap<>();
-        if (propertyList != null) {
-            propertyList.getList().forEach(p ->
-                    properties.put(((SqlTableOption) p).getKeyString().toLowerCase(),
-                            ((SqlTableOption) p).getValueString()));
-        }
-        LOG.debug("properties: {}", properties);
-
-        LOG.debug("eventTimeField:{}", sqlCreateTable.getEventTimeField());
-
-        LOG.debug("maxOutOrderless:{}", sqlCreateTable.getMaxOutOrderless());
-
-        String nodeInfo = sqlNode.toString();
-        LOG.debug("test allows secondary parsing: {}", nodeInfo);
-    }
 
 }
 
