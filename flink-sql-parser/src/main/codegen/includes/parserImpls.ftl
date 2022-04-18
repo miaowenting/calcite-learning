@@ -743,3 +743,135 @@ SqlIdentifier SqlRowType() :
         return new SqlRowType(getPos(), fieldNames, fieldTypes, comments);
     }
 }
+
+/**
+ * DESCRIBE | DESC [ EXTENDED] [[catalogName.] dataBasesName].tableName sql call.
+ * Here we add Rich in className to distinguish from calcite's original SqlDescribeTable.
+ */
+SqlRichDescribeTable SqlRichDescribeTable() :
+{
+    SqlIdentifier tableName;
+    SqlParserPos pos;
+    boolean isExtended = false;
+}
+{
+    ( <DESCRIBE> | <DESC> ) { pos = getPos();}
+    [ <EXTENDED> { isExtended = true;} ]
+    tableName = CompoundIdentifier()
+    {
+        return new SqlRichDescribeTable(pos, tableName, isExtended);
+    }
+}
+
+/**
+* Parses an explain module statement.
+*/
+SqlNode SqlRichExplain() :
+{
+    SqlNode stmt;
+    Set<String> explainDetails = new HashSet<String>();
+}
+{
+    (
+    LOOKAHEAD(3) <EXPLAIN> <PLAN> <FOR>
+    |
+    LOOKAHEAD(2) <EXPLAIN> ParseExplainDetail(explainDetails) ( <COMMA> ParseExplainDetail(explainDetails) )*
+    |
+    <EXPLAIN>
+    )
+    (
+        stmt = SqlStatementSet()
+        |
+        stmt = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        |
+        stmt = RichSqlInsert()
+    )
+    {
+        return new SqlRichExplain(getPos(), stmt, explainDetails);
+    }
+}
+
+/**
+* Parse a statement set.
+*
+* STATEMENT SET BEGIN (RichSqlInsert();)+ END
+*/
+SqlNode SqlStatementSet() :
+{
+    SqlParserPos startPos;
+    SqlNode insert;
+    List<RichSqlInsert> inserts = new ArrayList<RichSqlInsert>();
+}
+{
+    <STATEMENT>{ startPos = getPos(); } <SET> <BEGIN>
+    (
+        insert = RichSqlInsert()
+        <SEMICOLON>
+        {
+            inserts.add((RichSqlInsert) insert);
+        }
+    )+
+    <END>
+    {
+        return new SqlStatementSet(inserts, startPos);
+    }
+}
+
+void ParseExplainDetail(Set<String> explainDetails):
+{
+}
+{
+    (
+        <ESTIMATED_COST>
+        |
+        <CHANGELOG_MODE>
+        |
+        <JSON_EXECUTION_PLAN>
+    )
+    {
+        if (explainDetails.contains(token.image.toUpperCase())) {
+            throw SqlUtil.newContextException(
+                getPos(),
+                ParserResource.RESOURCE.explainDetailIsDuplicate());
+        } else {
+            explainDetails.add(token.image.toUpperCase());
+        }
+    }
+}
+
+/**
+* SHOW TABLES FROM [catalog.] database sql call.
+*/
+SqlShowTables SqlShowTables() :
+{
+    SqlIdentifier databaseName = null;
+    SqlCharStringLiteral likeLiteral = null;
+    String prep = null;
+    boolean notLike = false;
+    SqlParserPos pos;
+}
+{
+    <SHOW> <TABLES>
+    { pos = getPos(); }
+    [
+        ( <FROM> { prep = "FROM"; } | <IN> { prep = "IN"; } )
+        { pos = getPos(); }
+        databaseName = CompoundIdentifier()
+    ]
+    [
+        [
+            <NOT>
+            {
+                notLike = true;
+            }
+        ]
+        <LIKE>  <QUOTED_STRING>
+        {
+            String likeCondition = SqlParserUtil.parseString(token.image);
+            likeLiteral = SqlLiteral.createCharString(likeCondition, getPos());
+        }
+    ]
+    {
+        return new SqlShowTables(pos, prep, databaseName, notLike, likeLiteral);
+    }
+}

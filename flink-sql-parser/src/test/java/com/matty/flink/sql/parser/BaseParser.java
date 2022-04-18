@@ -7,6 +7,7 @@ import org.apache.calcite.avatica.util.Quoting;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.parser.SqlParser;
+import org.apache.calcite.sql.parser.SqlParserTest;
 
 /**
  * Description:
@@ -15,7 +16,7 @@ import org.apache.calcite.sql.parser.SqlParser;
  * @version 1.0
  * @date 2019-10-14
  */
-public class BaseParser {
+public class BaseParser extends SqlParserTest  {
 
     private FlinkSqlConformance conformance = FlinkSqlConformance.DEFAULT;
 
@@ -29,7 +30,7 @@ public class BaseParser {
         return sqlNode;
     }
 
-    private SqlParser getSqlParser(String sql) {
+    public SqlParser getSqlParser(String sql) {
         return SqlParser.create(sql,
                 SqlParser.configBuilder()
                         .setParserFactory(SqlParserImpl.FACTORY)

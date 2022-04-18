@@ -49,7 +49,15 @@
     "org.apache.calcite.sql.SqlDrop",
     "org.apache.calcite.sql.SqlCreate",
     "java.util.List",
-    "java.util.ArrayList"
+    "java.util.ArrayList",
+
+    "com.matty.flink.sql.parser.dql.SqlShowTables",
+    "com.matty.flink.sql.parser.dql.SqlRichExplain",
+    "com.matty.flink.sql.parser.dql.SqlRichDescribeTable",
+    "com.matty.flink.sql.parser.dml.SqlStatementSet",
+    "java.util.Set"
+    "java.util.HashSet"
+    "com.matty.flink.sql.parser.utils.ParserResource"
   ]
 
   # List of new keywords. Example: "DATABASES", "TABLES". If the keyword is not a reserved
@@ -74,7 +82,12 @@
     "CEPRULE",
     "EVENT",
     "REPEAT",
-    "SAME"
+    "SAME",
+    "EXTENDED",
+    "ESTIMATED_COST",
+    "CHANGELOG_MODE",
+    "JSON_EXECUTION_PLAN",
+    "TABLES"
   ]
 
   # List of keywords from "keywords" section that are not reserved.
@@ -400,8 +413,11 @@
   # Example: SqlShowDatabases(), SqlShowTables().
   # 用于解析自定义SQL语句的方法列表
   statementParserMethods: [
-    "RichSqlInsert()"
-  ]
+       "RichSqlInsert()"
+       "SqlRichDescribeTable()"
+       "SqlRichExplain()"
+       "SqlShowTables()"
+     ]
 
   # List of methods for parsing custom literals.
   # Return type of method implementation should be "SqlNode".
